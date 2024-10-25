@@ -345,46 +345,72 @@ class analysis_manager:
         Retrieves and prints tallies of different photon interactions.
         """
         self.tallies = {}
+        
         self.tallies["NO_HIT"] = (self.photons.flags & (0x1 << 0)).astype(bool)
         self.tallies["BULK_ABSORB"] = (self.photons.flags & (0x1 << 1)).astype(bool)
         self.tallies["SURFACE_DETECT"] = (self.photons.flags & (0x1 << 2)).astype(bool)
         self.tallies["SURFACE_ABSORB"] = (self.photons.flags & (0x1 << 3)).astype(bool)
-        self.tallies['RAYLEIGH_SCATTER'] = (self.photons.flags & (0x1 << 4)).astype(bool)
-        self.tallies["REFLECT_DIFFUSE"] = (self.photons.flags & (0x1 << 5)).astype(bool)
-        self.tallies["REFLECT_SPECULAR"] = (self.photons.flags & (0x1 << 6)).astype(bool)
-        self.tallies['SURFACE_REEMIT']   = (self.photons.flags & (0x1 << 7)).astype(bool)
-        self.tallies['SURFACE_TRANSMIT'] = (self.photons.flags & (0x1 << 8)).astype(bool)
-        self.tallies['BULK_REEMIT']      = (self.photons.flags & (0x1 << 9)).astype(bool)
-        self.tallies['CHERENKOV']        = (self.photons.flags & (0x1 << 10)).astype(bool)
-        self.tallies['SCINTILLATION']    = (self.photons.flags & (0x1 << 11)).astype(bool)
-        # self.tallies['NAN_ABORT']        = (self.photons.flags & (0x1 << 31)).astype(bool)
 
-        print()
-        print()
-        print("--SUMMARY---------------------------")
-        print("NUM_PARTICLES", self.num_particles)
-        for key, value in self.tallies.items():
-            print(key, np.sum(value))
         for key, value in self.particle_histories.items():
-            print(key, np.sum(value.astype(bool)), "at least once")
-            print(key, np.sum(value), "total number")
+            self.tallies[key] = value.astype(bool)
+            self.tallies[key + "_TOTAL"] = value
+ 
+        def format_scientific(number):
+            if number == 0:
+                return "0"  
+            return f"{number:.3e}"
+        
+        self.detected_sums = {}
+        
+        self.detected_sums["NUM_PARTICLES"] = np.sum(self.tallies["SURFACE_DETECT"])
+        self.detected_sums["RAYLEIGH_SCATTER"] = np.sum(self.tallies["SURFACE_DETECT"] & self.tallies["RAYLEIGH_SCATTER"])
+        self.detected_sums["REFLECT_DIFFUSE"] = np.sum(self.tallies["SURFACE_DETECT"] & self.tallies["REFLECT_DIFFUSE"])
+        self.detected_sums["REFLECT_SPECULAR"] =  np.sum(self.tallies["SURFACE_DETECT"] & self.tallies["REFLECT_SPECULAR"])
+        self.detected_sums["DIRECT_HITS"] = self.detected_sums["NUM_PARTICLES"] - self.detected_sums["REFLECT_DIFFUSE"] - self.detected_sums["REFLECT_SPECULAR"]
+
+        num_part_string = "NUM_PARTICLES:"
+
 
         print()
-        self.photon_transmission_efficiency = (
-            np.sum(self.tallies["SURFACE_DETECT"]) / self.num_particles
+        print("----SUMMARY------------------------------------------")
+        print()
+        print(f"{num_part_string:<25} {self.num_particles:>10}  {format_scientific(self.num_particles):>15}")
+        print()
+        print()
+        print(f"{'PHOTON BEHAVIOR':<25} {'COUNT':>10} {'EXP NOTATION':>15}")
+        print()
+
+        for key, value in self.tallies.items():
+            total = np.sum(value)
+            string = key + ":"
+            exp_notation = format_scientific(total)
+            print(f"{string:<25} {total:>10}  {exp_notation:>15}")
+       
+  
+        print()
+        print()
+        print(f"{'AMONG DETECTED PHOTONS':<25} {'COUNT':>10} {'EXP NOTATION':>15}")
+        print()
+
+        for key, value in self.detected_sums.items():
+            total = np.sum(value)
+            string = key + ":"
+            exp_notation = format_scientific(total)
+            print(f"{string:<25} {total:>10}  {exp_notation:>15}")
+        print()
+
+        self.photon_transport_efficiency = (
+            self.detected_sums["NUM_PARTICLES"]/ self.num_particles
         )
         self.pte_st_dev = (
             np.sqrt(np.sum(self.tallies["SURFACE_DETECT"])) / self.num_particles
         )
-        self.pte_st_dev_exp = np.sqrt(np.sum(self.tallies["SURFACE_DETECT"])) / (500/self.photon_transmission_efficiency)
-        print(
-            "PHOTON TRANSMISSION EFFICIENCY: "
-            + str(self.photon_transmission_efficiency)
-            + " "
-            + "+-"  # "\u00B1 "
-            + str(round(self.pte_st_dev, 7))
-        )
-        print("------------------------------------")
+
+        pte_string = "PHOTON TRANSPORT EFFICIENCY:"
+        pte_value = f"{self.photon_transport_efficiency:.7f} +- {str(round(self.pte_st_dev, 7))}"
+
+        print(f"{pte_string:<25} {pte_value:>24}")
+        print("-----------------------------------------------------")
 
         self.detected_positions = self.photons.pos[self.tallies["SURFACE_DETECT"]]
         self.detected_angles = self.incident_angle(
