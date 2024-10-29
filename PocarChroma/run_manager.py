@@ -82,30 +82,37 @@ class run_manager:
         #running more than 2-3 million all at once will cause the program to crash unless your GPU has a lot of vram so be careful
         if not batches or self.num_particles <= 2_000_000:
             self.run_single_simulation(random_seed, num_particles)
-            self.ana_man = analysis_manager(
-                self.gm,
-                experiment_name,
-                plots,
-                self.photons,
-                self.photon_tracks,
-                self.seed,
-                self.particle_histories,
-            )
+            self.myPhotons = self.photons
+            # self.ana_man = analysis_manager(
+            #     self.gm,
+            #     experiment_name,
+            #     plots,
+            #     self.photons,
+            #     self.photon_tracks,
+            #     self.seed,
+            #     self.particle_histories,
+            # )
         else:
             self.run_batches(random_seed, num_particles)
-            myPhotons = MyPhotons(photon_pos = self.photon_pos, photon_dir = self.photon_dir, photon_flags = self.photon_flags)
-            self.ana_man = analysis_manager(
-                self.gm,
-                experiment_name,
-                plots,
-                myPhotons,  #8/6/2024 Changed from self.photons. This was in attempt to incorporate multiple simulations. If needed put it back.
-                photon_tracks = self.first_photon_tracks, # photon tracks from just the first part of simulations
-                seed = self.seed,
-                histories = self.particle_histories,
-            )
+            self.myPhotons = MyPhotons(photon_pos = self.photon_pos, photon_dir = self.photon_dir, photon_flags = self.photon_flags)
+            self.photon_tracks = self.first_photon_tracks
+            # return myPhotons, self.first_photon_tracks, self.particle_histories
+            # self.ana_man = analysis_manager(
+            #     self.gm,
+            #     experiment_name,
+            #     plots,
+            #     myPhotons,  #8/6/2024 Changed from self.photons. This was in attempt to incorporate multiple simulations. If needed put it back.
+            #     photon_tracks = self.first_photon_tracks, # photon tracks from just the first part of simulations
+            #     seed = self.seed,
+            #     histories = self.particle_histories,
+            # )
+        # return self.photons, self.photon_tracks, self.particle_histories
+
 
         
-        
+    def get_simulation_results(self):
+        return self.myPhotons, self.photon_tracks, self.particle_histories
+
     def propagate_photon(self,num_particles):
         """
         Propagates photons through the geometry using the GPU, collecting their positions and interaction histories.

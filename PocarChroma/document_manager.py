@@ -58,7 +58,7 @@ class document_manager:
 - Number of Particles: {self.am.num_particles}
 - Random Seed: {self.am.seed}
 - Excluded Geometry: {self.am.gm.exclude}
-- PTE: {self.am.photon_transmission_efficiency:.5g} $plus.minus$ {self.am.pte_st_dev:.2g}.
+- PTE: {self.am.photon_transport_efficiency:.5g} $plus.minus$ {self.am.pte_st_dev:.2g}.
 
 #pagebreak()
 = Material Properties
@@ -73,10 +73,10 @@ class document_manager:
 
 = Results
 
-== Photon Transmission Efficiency
+== Photon Transport Efficiency
 
-The Photon Transmission Efficiency (PTE) for this experiment was 
-{self.am.photon_transmission_efficiency:.5g} $plus.minus$ {self.am.pte_st_dev:.2g}.
+The Photon Transport Efficiency (PTE) for this experiment was 
+{self.am.photon_transport_efficiency:.5g} $plus.minus$ {self.am.pte_st_dev:.2g}.
 
 == Tallies
 

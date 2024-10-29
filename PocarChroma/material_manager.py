@@ -5,12 +5,16 @@ from chroma.geometry import Material
 import pandas as pd
 import random
 
+# read materials from database
+# randomize functionality
+
 class material_manager:
 	"""
     Manages materials by reading their properties from a CSV file and creating Material objects.
     
     Attributes:
         experiment_name (str): String used to identify each experiment.
+        run_id (int): Identifier for the run.
         material_data_path (str): Path to the CSV file with material properties.
         materials_df (pd.DataFrame): DataFrame containing the material properties.
         materials (dict): Dictionary of Material objects.
@@ -23,6 +27,7 @@ class material_manager:
         
         Args:
             experiment_name (str): String used to identify each experiment.
+            run_id (int): Identifier for the run.
         """
 
 		self.material_data_path = '/workspace/data_files/data/' + experiment_name + '/bulk_materials_' + experiment_name + '.csv'
@@ -62,15 +67,17 @@ class material_manager:
 	def build_materials(self):
 		"""
         Reads material properties from a CSV file and creates Material objects.
+        
+        Args:
+            run_id (int): Identifier for the run.
         """
 		# read in the csv file into dataframe
 		self.materials_df = pd.read_csv(self.material_data_path)
-
+		#print(self.materials_df)
 		# iterate through all materials and create Material object, store into dictionary of materials
 		self.materials = {}
 		self.material_props = {}
 		properties = self.materials_df.columns
-
 		for index, row in self.materials_df.iterrows():
 			curr_name = row['name'] #name of the material		
 			self.materials[curr_name] = Material(name = curr_name)	
@@ -83,6 +90,9 @@ class material_manager:
 								density = row['density'])
 
 			self.material_props[curr_name] = dict(row)
+			self.material_props[curr_name]["eta"] = row["eta"]
+			self.material_props[curr_name]["k"] = row["k"]
+
 
 
 

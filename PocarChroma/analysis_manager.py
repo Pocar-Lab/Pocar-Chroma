@@ -81,6 +81,8 @@ class analysis_manager:
         photon_tracks,
         seed=0,
         histories=None,
+        save = False,
+        show = False,
     ):
         """
         Initializes the analysis manager.
@@ -123,6 +125,8 @@ class analysis_manager:
         self.get_tallies()
         self.plots = selected_plots
         self.geometry_data_path = f"/workspace/data_files/data/{self.experiment_name}/geometry_components_{self.experiment_name}.csv"
+        self.save = save
+        self.show = show
 
         self.plot_functions = {
             "plot_all_tracks": self.plot_all_tracks_wrapper,
@@ -302,7 +306,10 @@ class analysis_manager:
         axes.set_zlabel("z position (mm)")
         figure.suptitle(title)
         plt.title(title)
-        self.save_plot(plt, title.replace(" ", "_").lower())
+        if self.save:
+            self.save_plot(plt, title.replace(" ", "_").lower())
+        if self.show:
+            plt.show()
 
     def incident_angle(self, last_pos):
         """
@@ -474,7 +481,10 @@ class analysis_manager:
         plt.xlabel("Shooting Angle [deg]")
         plt.title("Emission Angle Distribution")
         plt.tight_layout()
-        self.save_plot(plt, "emission_angle_distribution")
+        if self.save:
+            self.save_plot(plt, "emission_angle_distribution")
+        if self.show:
+            plt.show()
 
     # Sili: added on 02/07/2023 to plot the shooting angle and emission angle correlation of detected photons
     def photon_incident_angle_emission_angle_correlation(
@@ -577,7 +587,10 @@ class analysis_manager:
         plt.title("Incident vs. Emission angle of Detected Reflected Photons")
         plt.xlim(0, 90)
         plt.ylim(0, 90)
-        self.save_plot(plt, "incident_vs_emission_angle")
+        if self.save:
+            self.save_plot(plt, "incident_vs_emission_angle")
+        if self.show:
+            plt.show()
 
     def plot_angle_hist(self):
         """
@@ -608,7 +621,10 @@ class analysis_manager:
         plt.xlabel("Incident Angle [deg]")
         plt.title("Incident Angle Distribution")
         plt.tight_layout()
-        self.save_plot(plt, "incident_angle_distribution")
+        if self.save:
+            self.save_plot(plt, "incident_angle_distribution")
+        if self.show:
+            plt.show()
         return hist
 
     def plot_position_hist(self):
@@ -627,7 +643,10 @@ class analysis_manager:
         plt.ylabel("z position (mm)")
         plt.title("Position Distribution")
         plt.tight_layout()
-        self.save_plot(plt, "position_distribution")
+        if self.save:
+            self.save_plot(plt, "position_distribution")
+        if self.show:
+            plt.show()
 
     def plot_refl_multiplicity(self, do_log=True, density=True):
         """
@@ -658,7 +677,10 @@ class analysis_manager:
         if do_log:
             plt.yscale("log")
         plt.tight_layout()
-        self.save_plot(plt, "reflection_multiplicity")
+        if self.save:
+            self.save_plot(plt, "reflection_multiplicity")
+        if self.show:
+            plt.show()
 
     def plot_refl_angle(self, do_log=True, low_angle=0, high_angle=91):
         """
@@ -696,7 +718,10 @@ class analysis_manager:
         plt.ylabel("Reflection Multiplicity")
         plt.colorbar()
         plt.tight_layout()
-        self.save_plot(plt, "reflection_angle_distribution")
+        if self.save:
+            self.save_plot(plt, "reflection_angle_distribution")
+        if self.show:
+            plt.show()
 
     def plot_all_tracks_wrapper(self):
         title = f"Photon Tracks, Seed {self.seed}"
