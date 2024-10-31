@@ -72,6 +72,10 @@ class surface_manager:
 
             elif curr_model_id == 6:
                 curr_surface = Surface(curr_name, model = 6)
+                eta2 = float(self.mat_manager.material_props[curr_inner_mat_name]["eta"])
+                k2 = float(self.mat_manager.material_props[curr_inner_mat_name]["k"])
+                curr_surface.set("eta", eta2)
+                curr_surface.set("k", k2)
             # Sili: added on 11/17/2022 to build a killing surface
             elif curr_model_id == 8:
                 curr_surface = Surface(curr_name, model=0)
