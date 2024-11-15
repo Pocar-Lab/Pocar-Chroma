@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 
 from chroma.geometry import Surface
-from chroma.geometry import DichroicProps
-from chroma.geometry import (
-    SiPMEmpiricalProps,
-)  # Sili: added on 0403/2023 to include the SiPM empirical package
+from chroma.geometry import DichroicProps,SiPMEmpiricalProps,ArrayProps2D
 import chroma.geometry
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import os
 
 # Manage the surface optical model (of the SiPM and other)? Mainly using model 0 which is the standard Fresnel
 
@@ -27,7 +25,7 @@ class surface_manager:
         self.surfaces = {}
         self.surface_props = {}
         self.surface_data_path = f"/workspace/data_files/data/{experiment_name}/surface_props_{experiment_name}.csv"
-
+        
         #the sipm reflectivity was determined by another lab experimentally. The lab reported an upperbound and a lower bound for the reflectivites.
         #the FBK.csv file was created by averaging the upper and lower bounds
         self.SiPMAOIref_path = "/workspace/data_files/FBK.csv"
@@ -35,6 +33,7 @@ class surface_manager:
         # self.SiPMAOIref_path ='/workspace/data_files/FBK reflectivity_lower_bound.csv'
 
         self.mat_manager = material_manager
+        self.experiment_name = experiment_name
         self.wavelengths = chroma.geometry.standard_wavelengths
         self.num_wavelengths = len(self.wavelengths)
         self.build_surfaces()
@@ -70,20 +69,19 @@ class surface_manager:
                     curr_name, curr_inner_mat_name
                 )
 
+            # below try to include the SiPM empirical surface
+            elif curr_model_id == 5:
+                curr_surface = self.SiPMEmpirical_surface(curr_name)
+
             elif curr_model_id == 6:
-                curr_surface = Surface(curr_name, model = 6)
-                eta2 = float(self.mat_manager.material_props[curr_inner_mat_name]["eta"])
-                k2 = float(self.mat_manager.material_props[curr_inner_mat_name]["k"])
-                curr_surface.set("eta", eta2)
-                curr_surface.set("k", k2)
+                curr_surface = self.create_lobed_surface(curr_name,curr_inner_mat_name)
+
             # Sili: added on 11/17/2022 to build a killing surface
             elif curr_model_id == 8:
                 curr_surface = Surface(curr_name, model=0)
                 # Photon will be killed(absorbed) when reaching the surface
                 curr_surface.set("absorb", 1)
-            # below try to include the SiPM empirical surface
-            elif curr_model_id == 5:
-                curr_surface = self.SiPMEmpirical_surface(curr_name)
+
             # for teflon
             elif curr_model_id == 9:
                 curr_surface = Surface(curr_name, model=0)
@@ -282,6 +280,46 @@ class surface_manager:
         self.eta2 = eta2
         self.k2 = k2
         return (self.eta2, self.k2)
-    
+ 
+
+    def create_lobed_surface(self, name,inner_mat_name):
+        curr_surface = Surface(name, model = 6)
+        eta2 = float(self.mat_manager.material_props[inner_mat_name]["eta"])
+        k2 = float(self.mat_manager.material_props[inner_mat_name]["k"])
+        curr_surface.set("eta", eta2)
+        curr_surface.set("k", k2)
+        curr_surface.num_angles = 0
+        #2D array initialization
+        reflect_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/reflect.csv"
+        transmit_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/transmit.csv"
+        detect_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/detect.csv"
+
+        reflect_df = transmit_df = detect_df = None
+
+        if os.path.exists(reflect_array_path):
+            reflect_df = pd.read_csv(reflect_array_path)
+        if os.path.exists(transmit_array_path):
+            transmit_df = pd.read_csv(transmit_array_path)
+        if os.path.exists(detect_array_path):
+            detect_df = pd.read_csv(detect_array_path)
+        
+        dfs = [reflect_df, transmit_df, detect_df]
+
+        if all(df is None for df in dfs):
+            #all CSV files dont exist
+            curr_surface.array_props_2D = None
+            return curr_surface
+        elif all(df is not None for df in dfs) and len({df.shape for df in dfs if df is not None}) == 1:
+            numAngles = next(df.shape[0] for df in dfs if df is not None)
+            array_props = ArrayProps2D(reflect_df.values.tolist(), reflect_df.values.tolist(), reflect_df.values.tolist(), numAngles)
+            curr_surface.array_props_2D = array_props
+            curr_surface.num_angles = numAngles
+            return curr_surface
+        else:
+            raise IndexError("CSV files have mismatched dimensions") 
+
+
+
+
     def overwrite_property(self, surface, property, new_value):
         self.surfaces[surface].set(property, new_value)
