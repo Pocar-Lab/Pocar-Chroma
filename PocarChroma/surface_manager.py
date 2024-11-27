@@ -289,6 +289,7 @@ class surface_manager:
         curr_surface.set("eta", eta2)
         curr_surface.set("k", k2)
         curr_surface.num_angles = 0
+        
         #2D array initialization
         reflect_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/reflect.csv"
         transmit_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/transmit.csv"
@@ -309,12 +310,14 @@ class surface_manager:
             #all CSV files dont exist
             curr_surface.array_props_2D = None
             return curr_surface
-        elif all(df is not None for df in dfs) and len({df.shape for df in dfs if df is not None}) == 1:
+
+        elif any(df is not None for df in dfs) and len({df.shape for df in dfs if df is not None}) == 1:
             numAngles = next(df.shape[0] for df in dfs if df is not None)
-            array_props = ArrayProps2D(reflect_df.values.tolist(), reflect_df.values.tolist(), reflect_df.values.tolist(), numAngles)
+            array_props = ArrayProps2D(reflect_df.values.tolist(), reflect_df.values.tolist(), reflect_df.values.tolist())
             curr_surface.array_props_2D = array_props
             curr_surface.num_angles = numAngles
             return curr_surface
+
         else:
             raise IndexError("CSV files have mismatched dimensions") 
 
