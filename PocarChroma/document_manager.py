@@ -14,7 +14,7 @@ TODO LIST:
 
 """
 
-class document_manager:
+class DocumentManager:
     def __init__(self, analysis_manager, label, workspace_path = "/workspace"):
         print("Created document manager")
         self.workspace_path = workspace_path

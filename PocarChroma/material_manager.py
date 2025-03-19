@@ -8,7 +8,7 @@ import random
 # read materials from database
 # randomize functionality
 
-class material_manager:
+class MaterialManager:
 	"""
     Manages materials by reading their properties from a CSV file and creating Material objects.
     

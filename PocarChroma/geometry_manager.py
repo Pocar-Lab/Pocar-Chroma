@@ -12,11 +12,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
-from .material_manager import material_manager
-from .surface_manager import surface_manager
+from .material_manager import MaterialManager
+from .surface_manager import SurfaceManager
 
 
-class geometry_manager:
+class GeometryManager:
     """
     Manages the geometry of an experiment by reading component data from a CSV file,
     creating solid objects, and organizing them into a detector geometry.
@@ -40,8 +40,8 @@ class geometry_manager:
         """
         self.exclude = [] if exclude is None else exclude
         self.experiment_name = experiment_name
-        self.mat_manager = material_manager(self.experiment_name) if surf_manager is None else surf_manager.mat_manager
-        self.surf_manager = surface_manager(self.mat_manager, self.experiment_name) if surf_manager is None else surf_manager
+        self.mat_manager = MaterialManager(self.experiment_name) if surf_manager is None else surf_manager.mat_manager
+        self.surf_manager = SurfaceManager(self.mat_manager, self.experiment_name) if surf_manager is None else surf_manager
         self.global_geometry = Detector(self.mat_manager.global_material)
 
         self.geometry_data_path = f"/workspace/data_files/data/{experiment_name}/geometry_components_{experiment_name}.csv"

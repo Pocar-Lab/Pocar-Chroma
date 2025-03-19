@@ -14,7 +14,7 @@ import time
 import os
 
 
-class analysis_manager:
+class AnalysisManager:
     """
     Manages the analysis of photon tracks and generates various plots.
 

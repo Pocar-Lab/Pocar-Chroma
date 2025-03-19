@@ -11,7 +11,7 @@ import os
 
 # Manage the surface optical model (of the SiPM and other)? Mainly using model 0 which is the standard Fresnel
 
-class surface_manager:
+class SurfaceManager:
     """
     Manages the surfaces used in the simulation, including their properties and construction based on input data.
 
