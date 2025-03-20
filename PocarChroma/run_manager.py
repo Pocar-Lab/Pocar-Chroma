@@ -43,7 +43,7 @@ class RunManager:
         num_particles,
         given_pg=None,
         pg_params = None,
-        batches = False,
+        batch_size = None,
     ):
         # self.times = {}
 
@@ -82,12 +82,12 @@ class RunManager:
 
         #run the simulation either all at once or in batches depending on the value of 'batches'
         #running more than 2-3 million all at once will cause the program to crash unless your GPU has a lot of vram so be careful
-        if not batches or self.num_particles <= 2_000_000:
+        if not batch_size or self.num_particles <= 2_000_000:
             self.run_single_simulation(random_seed, num_particles)
             self.myPhotons = self.photons
 
         else:
-            self.run_batches(random_seed, num_particles)
+            self.run_batches(random_seed, num_particles, batch_size)
             self.myPhotons = MyPhotons(photon_pos = self.photon_pos, photon_dir = self.photon_dir, photon_flags = self.photon_flags)
             self.photon_tracks = self.first_photon_tracks
 
@@ -151,7 +151,7 @@ class RunManager:
         elif self.pg_params is not None:
             self.pg = PrimaryGenerator(**self.pg_params)
         else:
-            self.pg = PrimaryGenerator(num_particles = self.num_particles, center_pos= self.center_pos)
+            self.pg = PrimaryGenerator(num_particles = batch_size, center_pos= self.center_pos)
 
         self.propagate_photon(batch_size)
     
@@ -159,7 +159,7 @@ class RunManager:
     #runs a simulation of a larger number of photons in smaller batches to avoid running out of memory.
     #the seed is incremented after each batch to ensure a different seed but also have the process be repeatable from the same initial seed. 
     # This means that a simulation of 100 million photons at seed 1000 will use seeds 1000-1049, so be careful not to call initial seeds too close together as there may be overlap
-    def run_batches(self, seed, num_particles):
+    def run_batches(self, seed, num_particles, batch_size):
         # start_initialization = time.perf_counter()
         #running more than 2-3 million all at once will cause the program to crash unless your GPU has a lot of vram so be careful
         batch_size = 2_000_000
@@ -176,21 +176,21 @@ class RunManager:
         # self.times['initialization_time'] = end_initialization - start_initialization
         
         # Initialize variables for tracking simulation and array modification times
-        total_simulation_time = 0
-        total_array_modification_time = 0        
+        # total_simulation_time = 0
+        # total_array_modification_time = 0        
 
         for i in range(num_sims):
             current_batch_size = min(batch_size, num_particles - i * batch_size)
             
             # Run a single simulation with the current batch
-            start_simulation = time.perf_counter()
+            # start_simulation = time.perf_counter()
 
             self.run_single_simulation(seed + i, current_batch_size)
 
-            end_simulation = time.perf_counter()    
-            total_simulation_time += (end_simulation - start_simulation)
+            # end_simulation = time.perf_counter()    
+            # total_simulation_time += (end_simulation - start_simulation)
 
-            start_array_modification = time.perf_counter()
+            # start_array_modification = time.perf_counter()
             if i == 0:
                 self.first_photon_tracks = self.photon_tracks
             total_flags.append(self.photons.flags)
@@ -204,9 +204,9 @@ class RunManager:
             for key in self.particle_histories.keys():
                 total_particle_histories[key][start_idx:end_idx] = self.particle_histories[key]
             
-            end_array_modification = time.perf_counter()
+            # end_array_modification = time.perf_counter()
         
-            total_array_modification_time += (end_array_modification - start_array_modification)
+            # total_array_modification_time += (end_array_modification - start_array_modification)
     
             
         
@@ -226,7 +226,7 @@ class RunManager:
         # clean up
         del total_flags, total_dir, total_pos, total_photon_tracks
 
-        end_concat_cleanup = time.perf_counter()
+        # end_concat_cleanup = time.perf_counter()
         # self.times['concatenation_cleanup_time'] = end_concat_cleanup - start_concat_cleanup
 
     def reset_nonterminal_flags(self, flag_list):

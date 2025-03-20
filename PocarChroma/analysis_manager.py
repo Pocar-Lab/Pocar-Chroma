@@ -83,6 +83,7 @@ class AnalysisManager:
         histories=None,
         save = False,
         show = False,
+        print = True,
     ):
         """
         Initializes the analysis manager.
@@ -377,34 +378,34 @@ class AnalysisManager:
 
         num_part_string = "NUM_PARTICLES:"
 
-
         print()
         print("----SUMMARY------------------------------------------")
-        print()
-        print(f"{num_part_string:<25} {self.num_particles:>10}  {format_scientific(self.num_particles):>15}")
-        print()
-        print()
-        print(f"{'PHOTON BEHAVIOR':<25} {'COUNT':>10} {'EXP NOTATION':>15}")
-        print()
+        if print:
 
-        for key, value in self.tallies.items():
-            total = np.sum(value)
-            string = key + ":"
-            exp_notation = format_scientific(total)
-            print(f"{string:<25} {total:>10}  {exp_notation:>15}")
-       
-  
-        print()
-        print()
-        print(f"{'AMONG DETECTED PHOTONS':<25} {'COUNT':>10} {'EXP NOTATION':>15}")
-        print()
+            print()
+            print(f"{num_part_string:<25} {self.num_particles:>10}  {format_scientific(self.num_particles):>15}")
+            print()
+            print()
+            print(f"{'PHOTON BEHAVIOR':<25} {'COUNT':>10} {'EXP NOTATION':>15}")
+            print()
 
-        for key, value in self.detected_sums.items():
-            total = np.sum(value)
-            string = key + ":"
-            exp_notation = format_scientific(total)
-            print(f"{string:<25} {total:>10}  {exp_notation:>15}")
-        print()
+            for key, value in self.tallies.items():
+                total = np.sum(value)
+                string = key + ":"
+                exp_notation = format_scientific(total)
+                print(f"{string:<25} {total:>10}  {exp_notation:>15}")
+        
+            print()
+            print()
+            print(f"{'AMONG DETECTED PHOTONS':<25} {'COUNT':>10} {'EXP NOTATION':>15}")
+            print()
+
+            for key, value in self.detected_sums.items():
+                total = np.sum(value)
+                string = key + ":"
+                exp_notation = format_scientific(total)
+                print(f"{string:<25} {total:>10}  {exp_notation:>15}")
+            print()
 
         self.photon_transport_efficiency = (
             self.detected_sums["NUM_PARTICLES"]/ self.num_particles
