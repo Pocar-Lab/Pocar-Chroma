@@ -46,12 +46,22 @@ class run_manager:
         write=False,
         pg=None,
         batches = False,
+        batch_amount = 2_000_000,
+        nthreads_per_block = 64,
+        max_blocks = 1024,
+        propagation_seed = 20000000,
+        
     ):
         self.num_steps = 15
         self.seed = random_seed
         self.gm = geometry_manager
         self.center_pos = self.gm.get_solid_center(name="source")
         self.num_particles = num_particles
+        
+        #test parameters for gpu optimization, be careful
+        self.nthreads = nthreads_per_block
+        self.max_blocks = max_blocks
+        self.propagation_seed = propagation_seed
 
         self.given_pg = pg
         self.pg = pg
@@ -115,9 +125,9 @@ class run_manager:
 
         :return: None
         """
-        nthreads_per_block = 64
-        max_blocks = 1024
-        seed = 20000000
+        nthreads_per_block = self.nthreads
+        max_blocks = self.max_blocks
+        seed = self.propagation_seed
 
         gpu_photons = gpu.GPUPhotons(self.pg.primary_photons)
         gpu_geometry = gpu.GPUGeometry(self.gm.global_geometry)
@@ -170,7 +180,7 @@ class run_manager:
     def run_batches(self, seed, num_particles):
 
         #running more than 2-3 million all at once will cause the program to crash unless your GPU has a lot of vram so be careful
-        batch_size = 2_000_000
+        batch_size = self.batch_amount
         num_sims = math.ceil(num_particles / batch_size)
         
         total_flags = []
