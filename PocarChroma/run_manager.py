@@ -43,7 +43,10 @@ class RunManager:
         num_particles,
         given_pg=None,
         pg_params = None,
-        batch_size = None,
+        batch_size = 2_000_000,
+        nthreads_per_block = 64,
+        max_blocks = 1024,
+        propagation_seed = 20000000,
     ):
         # self.times = {}
 
@@ -52,6 +55,12 @@ class RunManager:
         self.gm = geometry_manager
         self.center_pos = self.gm.get_solid_center(name="source")
         self.num_particles = num_particles
+        
+        
+        #test parameters for gpu optimization, be careful
+        self.nthreads = nthreads_per_block
+        self.max_blocks = max_blocks
+        self.propagation_seed = propagation_seed
 
         self.given_pg = given_pg
         self.pg_params = pg_params
@@ -106,9 +115,9 @@ class RunManager:
 
         :return: None
         """
-        nthreads_per_block = 64
-        max_blocks = 1024
-        seed = 20000000
+        nthreads_per_block = self.nthreads
+        max_blocks = self.max_blocks
+        seed = self.propagation_seed
 
         gpu_photons = gpu.GPUPhotons(self.pg.primary_photons)
         gpu_geometry = gpu.GPUGeometry(self.gm.global_geometry)
