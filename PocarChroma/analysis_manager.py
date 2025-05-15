@@ -125,7 +125,7 @@ class AnalysisManager:
         self.selected_plots = selected_plots
         self.get_tallies()
         self.plots = selected_plots
-        self.geometry_data_path = f"/workspace/data_files/data/{self.experiment_name}/geometry_components_{self.experiment_name}.csv"
+        self.geometry_data_path = f"/workspace/data_files/geometry_components/{self.experiment_name}.csv"
         self.save = save
         self.show = show
 
@@ -361,7 +361,7 @@ class AnalysisManager:
 
         for key, value in self.particle_histories.items():
             self.tallies[key] = value.astype(bool)
-            self.tallies[key + "_TOTAL"] = value
+            self.tallies[key + " TOTAL"] = value
  
         def format_scientific(number):
             if number == 0:
@@ -374,7 +374,9 @@ class AnalysisManager:
         self.detected_sums["RAYLEIGH_SCATTER"] = np.sum(self.tallies["SURFACE_DETECT"] & self.tallies["RAYLEIGH_SCATTER"])
         self.detected_sums["REFLECT_DIFFUSE"] = np.sum(self.tallies["SURFACE_DETECT"] & self.tallies["REFLECT_DIFFUSE"])
         self.detected_sums["REFLECT_SPECULAR"] =  np.sum(self.tallies["SURFACE_DETECT"] & self.tallies["REFLECT_SPECULAR"])
-        self.detected_sums["DIRECT_HITS"] = self.detected_sums["NUM_PARTICLES"] - self.detected_sums["REFLECT_DIFFUSE"] - self.detected_sums["REFLECT_SPECULAR"]
+        self.detected_sums["REFLECT_SPEC_AND_DIFFUSE"] =  np.sum(self.tallies["SURFACE_DETECT"] & self.tallies["REFLECT_SPECULAR"] & self.tallies["REFLECT_DIFFUSE"])
+
+        self.detected_sums["DIRECT_HITS"] = self.detected_sums["NUM_PARTICLES"] - self.detected_sums["REFLECT_DIFFUSE"] - self.detected_sums["REFLECT_SPECULAR"] + self.detected_sums["REFLECT_SPEC_AND_DIFFUSE"]
 
         num_part_string = "NUM_PARTICLES:"
 
