@@ -40,11 +40,11 @@ class GeometryManager:
         """
         self.exclude = [] if exclude is None else exclude
         self.experiment_name = experiment_name
-        self.mat_manager = MaterialManager(self.experiment_name) if surf_manager is None else surf_manager.mat_manager
-        self.surf_manager = SurfaceManager(self.mat_manager, self.experiment_name) if surf_manager is None else surf_manager
+        self.mat_manager = MaterialManager() if surf_manager is None else surf_manager.mat_manager
+        self.surf_manager = SurfaceManager(self.mat_manager) if surf_manager is None else surf_manager
         self.global_geometry = Detector(self.mat_manager.global_material)
 
-        self.geometry_data_path = f"/workspace/data_files/data/{experiment_name}/geometry_components_{experiment_name}.csv"
+        self.geometry_data_path = f"/workspace/data_files/geometry_components/{experiment_name}.csv"
         self.build_geometry()
 
         self.global_geometry.flatten()
