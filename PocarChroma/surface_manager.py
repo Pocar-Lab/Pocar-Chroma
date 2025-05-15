@@ -21,10 +21,10 @@ class SurfaceManager:
     :type experiment_name: str
     """
 
-    def __init__(self, material_manager, experiment_name):
+    def __init__(self, material_manager):
         self.surfaces = {}
         self.surface_props = {}
-        self.surface_data_path = f"/workspace/data_files/data/{experiment_name}/surface_props_{experiment_name}.csv"
+        self.surface_data_path = f"/workspace/data_files/surface_props.csv"
         
         #the sipm reflectivity was determined by another lab experimentally. The lab reported an upperbound and a lower bound for the reflectivites.
         #the FBK.csv file was created by averaging the upper and lower bounds
@@ -33,7 +33,6 @@ class SurfaceManager:
         # self.SiPMAOIref_path ='/workspace/data_files/FBK reflectivity_lower_bound.csv'
 
         self.mat_manager = material_manager
-        self.experiment_name = experiment_name
         self.wavelengths = chroma.geometry.standard_wavelengths
         self.num_wavelengths = len(self.wavelengths)
         self.build_surfaces()
@@ -290,38 +289,38 @@ class SurfaceManager:
         curr_surface.set("k", k2)
         curr_surface.num_angles = 0
         
-        #2D array initialization
-        reflect_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/reflect.csv"
-        transmit_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/transmit.csv"
-        detect_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/detect.csv"
+        #Code to have 2D dataframesof angle/reflectance dictate reflectance. /not tested and no use so didn'tt finsih intereating -loick
+        # #2D array initialization
+        # reflect_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/reflect.csv"
+        # transmit_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/transmit.csv"
+        # detect_array_path = f"/workspace/data_files/data/{self.experiment_name}/{name}/detect.csv"
 
-        reflect_df = transmit_df = detect_df = None
+        # reflect_df = transmit_df = detect_df = None
 
-        if os.path.exists(reflect_array_path):
-            reflect_df = pd.read_csv(reflect_array_path)
-        if os.path.exists(transmit_array_path):
-            transmit_df = pd.read_csv(transmit_array_path)
-        if os.path.exists(detect_array_path):
-            detect_df = pd.read_csv(detect_array_path)
+        # if os.path.exists(reflect_array_path):
+        #     reflect_df = pd.read_csv(reflect_array_path)
+        # if os.path.exists(transmit_array_path):
+        #     transmit_df = pd.read_csv(transmit_array_path)
+        # if os.path.exists(detect_array_path):
+        #     detect_df = pd.read_csv(detect_array_path)
         
-        dfs = [reflect_df, transmit_df, detect_df]
+        # dfs = [reflect_df, transmit_df, detect_df]
 
-        if all(df is None for df in dfs):
-            #all CSV files dont exist
-            curr_surface.array_props_2D = None
-            return curr_surface
+        # if all(df is None for df in dfs):
+        #     #all CSV files dont exist
+        #     curr_surface.array_props_2D = None
+        #     return curr_surface
 
-        elif any(df is not None for df in dfs) and len({df.shape for df in dfs if df is not None}) == 1:
-            numAngles = next(df.shape[0] for df in dfs if df is not None)
-            array_props = ArrayProps2D(reflect_df.values.tolist(), reflect_df.values.tolist(), reflect_df.values.tolist())
-            curr_surface.array_props_2D = array_props
-            curr_surface.num_angles = numAngles
-            return curr_surface
+        # elif any(df is not None for df in dfs) and len({df.shape for df in dfs if df is not None}) == 1:
+        #     numAngles = next(df.shape[0] for df in dfs if df is not None)
+        #     array_props = ArrayProps2D(reflect_df.values.tolist(), reflect_df.values.tolist(), reflect_df.values.tolist())
+        #     curr_surface.array_props_2D = array_props
+        #     curr_surface.num_angles = numAngles
+        #     return curr_surface
 
-        else:
-            raise IndexError("CSV files have mismatched dimensions") 
-
-
+        # else:
+        #     raise IndexError("CSV files have mismatched dimensions") 
+        return curr_surface
 
 
     def overwrite_property(self, surface, property, new_value):

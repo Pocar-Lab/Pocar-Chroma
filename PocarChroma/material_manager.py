@@ -21,7 +21,7 @@ class MaterialManager:
         material_props (dict): Dictionary of material properties.
         global_material (Material): The global material used in the experiment.
     """
-	def __init__(self, experiment_name):
+	def __init__(self):
 		"""
         Initializes the material_manager with the given experiment name and run ID.
         
@@ -30,7 +30,7 @@ class MaterialManager:
             run_id (int): Identifier for the run.
         """
 
-		self.material_data_path = '/workspace/data_files/data/' + experiment_name + '/bulk_materials_' + experiment_name + '.csv'
+		self.material_data_path = '/workspace/data_files/bulk_materials.csv'
 	
 		self.build_materials()
 		self.global_material = self.materials['liquid xenon']
@@ -114,3 +114,6 @@ class MaterialManager:
 			return self.materials[material_name]
 		else:
 			raise Exception('Material does not exist: ' + material_name)
+		
+	def overwrite_property(self, material_name, property, new_value):
+		self.material_props.get(material_name).set(property, new_value)
