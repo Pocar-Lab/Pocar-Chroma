@@ -234,7 +234,7 @@ def photon_generator(
             direction_args['cone_angle'] = cone_angle
         else:
             raise ValueError('cone_angle must be specified as an int or float')
-    ============= PHOTON GENERATION SUB-FUNCTIONS ============
+
     else:
         raise ValueError('Unknown direction_gen_type. Currently accepted direction generators are isotropic, beam, and cone')
 
