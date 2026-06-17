@@ -73,7 +73,7 @@ class pg_handler():
     def __init__(
         self,
         generator,
-        generator_args:dict
+        **generator_args
         ) -> None:
         
         
