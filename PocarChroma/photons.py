@@ -167,7 +167,7 @@ def make_HDF5_file(
     with h5py.File(file_path, 'w') as f:
 
         # make the two datasets
-        tallies_ds = f.create_dataset('tallies',
+        tallies_ds = f.create_dataset(name='tallies',
             shape=(tallies_rows,), 
             dtype=tallies_dtype
             )
@@ -195,7 +195,7 @@ def tallies_write(
     file_path:str,
     tallies_dict:dict,
 ):
-    with h5py.File(file_path, 'w') as f:
+    with h5py.File(file_path, 'r+') as f:
         ds = f['tallies']
         next_row = ds.attrs['next_writable']
 
