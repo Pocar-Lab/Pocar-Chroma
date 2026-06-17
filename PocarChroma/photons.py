@@ -19,9 +19,17 @@ from .analysis_manager import analysis_manager
 ================= START PROPAGATION CODE =================
 '''
 
+
+
+
+'''
+Propagate() only handles propagation of a single "batch" of photons, 
+batching is either to be handled by an auxilliary function in this file or something in the analysis file
+'''
+
 def propagate(
-    photons,
-    geometry,
+    photons,    # This should be a chroma Photons object. NOT the photon generator
+    geometry,   # This should be a chroma geometry object
     interactions,
     seed = 5555,
     track_return_ct = 0,
@@ -39,6 +47,10 @@ def propagate(
     # initialize some arrays for storing output information
 
     photon_tracks = np.zeros((num_steps + 1, track_return_ct, 3))
+    
+    #initialize the first row of photon tracks with initial photon positions
+    photon_tracks[0, :, :] = photons.pos[:track_return_ct]
+
 
 
     particle_histories = {
@@ -46,14 +58,49 @@ def propagate(
             for curr_int in interactions.keys()
         }
 
-
+    # intialize GPU states
+    
     gpu_photons = gpu.GPUPhotons(photons)
     gpu_geometry = gpu.GPUGeometry(geometry)
 
     rng_states = gpu.get_rng_states(n_threads * max_blocks, seed=seed)
 
+    # ===== BEGIN RUN LOOP =====
 
+
+    for i in range(num_steps):
+
+        gpu_photons.propagate(
+            gpu_geometry,
+            rng_states,
+            nthreads_per_block=n_threads,
+            max_blocks=max_blocks,
+            max_steps=1,
+        )
+
+        # Get a chroma Photons object
+        photons = gpu_photons.get()
+
+        # Add a new column to tracks
+        photon_tracks[i + 1, :, :] = photons.pos[:track_return_ct]
+
+        # This is the update_tallies() function from run_manager
+        for key, value in interactions.items():
+            curr_tally = (photons.flags & (0x1 << value)).astype(bool).astype(int)
+            particle_histories[key] += curr_tally
+
+        # This is reset non-terminal flags from run_manager
+        new_flags = photons.flags & 2147479567
+        gpu_photons.flags[: n_photons].set(new_flags.astype(np.uint32))
     
+    #simulation done, clear GPU cache to save memory
+    pycuda.tools.clear_context_caches()
+
+    return photon_tracks, particle_histories
+
+
+
+
 
 
 
