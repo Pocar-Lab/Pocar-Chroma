@@ -143,7 +143,7 @@ def make_HDF5_file(
     # You should also specify the total number of rows (photons) in the tallies arrays
     tallies_rows:int,
     # and the tallies columns
-    tallies_columns: dict | list
+    tallies_columns
     ):
     # I could in theory make it so the HDF5 file is configured to be dynamic, but that would take extra work that doesn't seem worth it right now
 
