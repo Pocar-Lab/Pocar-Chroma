@@ -4,6 +4,7 @@ from chroma.event import Photons
 
 import numpy as np
 import math
+import h5py
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
@@ -33,9 +34,12 @@ def propagate(
     interactions,
     seed = 5555,
     track_return_ct = 0,
+    num_steps = 15,
+
+    # The following parameters are highly GPU dependant, change at your own risk
     n_threads = 64,
     max_blocks = 1024,
-    num_steps = 15
+    
     ):
 
     # Get number of photons from Photons object
@@ -44,6 +48,13 @@ def propagate(
     # Print a warning if attempting to propagate a large number of photons
     if n_photons > 2000000:
         print('WARNING: Attempting to propagate more than 2 million photons. This may crash the GPU!')
+
+    # raise an error if more photon tracks are requested than photons simulated
+    if track_return_ct > n_photons:
+        raise ValueError('More photon tracks requested than photons simulated!')
+
+
+    
     # initialize some arrays for storing output information
 
     photon_tracks = np.zeros((num_steps + 1, track_return_ct, 3))
@@ -103,19 +114,108 @@ def propagate(
 
     return photon_tracks, particle_histories
 
-
-
-
-
-
-
 '''
 ================== END PROPAGATION CODE ==================
+
+
+================= START FILE SAVING CODE =================
 '''
 
+'''
+Makes an HDF5 file with the desired header information
+
+You can pass anything under 64kb into attributes and it will be saved along with the file. 
+This includes things such as a notes section
+To read attributes, use
+
+f.attrs.get[<attribute_name>].
+
+It also creates two datasets, one called tallies and one called tracks
+'''
+def make_HDF5_file(
+    file_path, 
+    attributes:dict,
+
+    # Note, specifying dataset shape will ensure that file creation goes smoothly.
+    # The tracks dataset has the shape (<number of steps> + 1, <number of tracks to be saved>, 3)
+    tracks_shape,    # The shape of the tracks dataset, in standard numpy notation.
+
+    # You should also specify the total number of rows (photons) in the tallies arrays
+    tallies_rows:int,
+    # and the tallies columns
+    tallies_columns:(dict|list)
+    ):
+    # I could in theory make it so the HDF5 file is configured to be dynamic, but that would take extra work that doesn't seem worth it right now
+
+    # Convert tallies_columns into list if supplied as dict
+    if isinstance(tallies_columns, dict):
+        tallies_columns = list(tallies_columns.keys())
+    
+    # make the tallies column names into a structured dtype with columns as bools
+
+    tallies_dtype = np.dtype([(name, 'i') for name in tallies_columns])
+
+    # actually make the file
+    with h5py.File(file_path, 'w') as f:
+
+        # make the two datasets
+        tallies_ds = f.create_dataset('tallies',
+            shape=(tallies_rows,), 
+            dtype=tallies_dtype
+            )
+        
+        # set an attribute that keeps track of next writable row 
+
+        tallies_ds.attrs['next_writable'] = 0
+        
+        tracks_ds = f.create_dataset('tracks', tracks_shape, dtype='f')
+
+        tracks_ds.attrs['next_writable'] = 0
+
+        for key, value in attributes.items():
+            f.attrs[key] = value
+    
+    print(f'Results file created at {file_path}')
+
+    return
+
+'''
+I decided to impliment two writing functions because tallies is writing bools to columns but tracks is writing n by 3 arrays to rows
+'''
+
+def tallies_write(
+    file_path:str,
+    tallies_dict:dict,
+):
+    with h5py.File(file_path, 'w') as f:
+        ds = f['tallies']
+        next_row = ds.attrs['next_writable']
+
+        # Get the end row by getting the length of the first array in the dict
+        end_row = next_row + len(next(iter(tallies_dict.values())))
+
+        for key, value in tallies_dict.items():
+
+            ds[next_row: end_row][key] = value
+        
+        ds.attrs['next_writable'] = end_row
+
+    return
+
+    
+
+def tracks_write():
+    pass
+
+    
+
 
 
 '''
+================== END FILE SAVING CODE ==================
+
+
+
 ============== START PHOTON GENERATION CODE ==============
 '''
 
