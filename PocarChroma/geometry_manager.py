@@ -31,7 +31,7 @@ class geometry_manager:
         solids (dict): Dictionary of solid objects.
     """
 
-    def __init__(self, experiment_name, exclude=None, surf_manager = None):
+    def __init__(self, experiment_name, exclude=None, surf_manager = None, geo_data = None):
         """
         Initializes the geometry_manager with the given experiment name and run ID.
 
@@ -43,8 +43,11 @@ class geometry_manager:
         self.mat_manager = material_manager(self.experiment_name) if surf_manager is None else surf_manager.mat_manager
         self.surf_manager = surface_manager(self.mat_manager, self.experiment_name) if surf_manager is None else surf_manager
         self.global_geometry = Detector(self.mat_manager.global_material)
+        if geo_data == None:
+            self.geometry_data_path = f"/workspace/data_files/data/{experiment_name}/geometry_components_{experiment_name}.csv"
+        else: 
+            self.geometry_data_path = geo_data
 
-        self.geometry_data_path = f"/workspace/data_files/data/{experiment_name}/geometry_components_{experiment_name}.csv"
         self.build_geometry()
 
         self.global_geometry.flatten()

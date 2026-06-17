@@ -12,6 +12,10 @@ import pycuda.tools
 from .analysis_manager import analysis_manager
 
 '''
+================ START AUXILLARY FUNCTIONS ===============
+'''
+
+'''
 ================= START PROPAGATION CODE =================
 '''
 
