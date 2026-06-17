@@ -58,10 +58,15 @@ def propagate(
             for curr_int in interactions.keys()
         }
 
-    # intialize GPU states
     
+    # start a simulation
+    sim = Simulation(
+            geometry.global_geometry, seed = seed, geant4_processes=0
+        ) 
+    
+    # intialize GPU states
     gpu_photons = gpu.GPUPhotons(photons)
-    gpu_geometry = gpu.GPUGeometry(geometry)
+    gpu_geometry = gpu.GPUGeometry(geometry.global_geometry)
 
     rng_states = gpu.get_rng_states(n_threads * max_blocks, seed=seed)
 
