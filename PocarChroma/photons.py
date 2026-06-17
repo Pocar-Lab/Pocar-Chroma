@@ -7,6 +7,7 @@ import math
 import h5py
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
+import os
 
 from chroma import gpu
 import pycuda.tools
@@ -146,6 +147,13 @@ def make_HDF5_file(
     tallies_columns
     ):
     # I could in theory make it so the HDF5 file is configured to be dynamic, but that would take extra work that doesn't seem worth it right now
+
+    save_dir = file_path.rsplit('/', 1)[0]
+    if os.path.isdir(save_dir):
+        pass
+    else:
+        os.makedirs(save_dir, exist_ok=True)
+
 
     # Convert tallies_columns into list if supplied as dict
     if isinstance(tallies_columns, dict):
