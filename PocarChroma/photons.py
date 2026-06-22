@@ -251,8 +251,19 @@ def tallies_write(
 
     
 
-def tracks_write():
-    pass
+def tracks_write(
+    file_path,
+    tracks_arr
+):
+    with h5py.File(file_path, 'r+') as f:
+        ds = f['tracks']
+        next_row = ds.attrs['next_writable']
+        end_row = next_row + tracks_arr.shape[1]
+
+        ds[:, next_row:end_row, 3] = tracks_arr
+    
+    return
+    
 
     
 
