@@ -84,8 +84,7 @@ def tallies_write(
     :type tallies_dict: dict
     '''
     
-    tprint('The tallies dictionary is:')
-    tprint(tallies_dict)
+
 
     with h5py.File(file_path, 'r+') as f:
         ds = f['tallies']
@@ -94,16 +93,14 @@ def tallies_write(
 
         # Get the end row by getting the length of the first array in the dict
         end_row = next_row + len(next(iter(tallies_dict.values())))
-        tprint(f'Next Row: {next_row}')
-        tprint(f'End Row: {end_row}')
+
         
         for key, value in tallies_dict.items():
 
-            tprint(f'Column: {key}')
-            tprint(f'Data: {value}')
+
 
             ds[key, next_row:end_row]= value
-            tprint(ds)
+
         
         ds.attrs['next_writable'] = end_row
         
