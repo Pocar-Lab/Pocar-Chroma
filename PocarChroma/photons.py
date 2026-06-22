@@ -20,7 +20,19 @@ from .analysis_manager import analysis_manager
 test_mode = False
 
 # tprint will print only if test mode is set to True
-tprint = print if test_mode else lambda *a, **k: None
+
+def init(use_test_mode = False):
+
+    global test_mode
+
+    test_mode = use_test_mode
+
+    tprint = print if test_mode else lambda *a, **k: None
+    if test_mode:
+        tprint('test_mode active')
+
+
+
 
 '''
 ================= START PROPAGATION CODE =================
