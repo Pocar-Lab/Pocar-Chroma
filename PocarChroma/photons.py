@@ -24,6 +24,7 @@ test_mode = False
 def init(use_test_mode = False):
 
     global test_mode
+    global tprint
 
     test_mode = use_test_mode
 
