@@ -18,6 +18,7 @@ from .analysis_manager import analysis_manager
 '''
 # Set this parameter to true to enable more information printed out
 test_mode = False
+tprint = lambda *a, **k: None
 
 # tprint will print only if test mode is set to True
 
@@ -233,10 +234,16 @@ def tallies_write(
 
         # Get the end row by getting the length of the first array in the dict
         end_row = next_row + len(next(iter(tallies_dict.values())))
+        tprint(f'Next Row: {next_row}')
+        tprint(f'End Row: {end_row}')
 
         for key, value in tallies_dict.items():
 
+            tprint(f'Column: {key}')
+            tprint(f'Data: {value}')
+
             ds[next_row: end_row][key] = value
+            tprint(ds)
         
         ds.attrs['next_writable'] = end_row
 
