@@ -261,6 +261,7 @@ def tracks_write(
         end_row = next_row + tracks_arr.shape[1]
 
         ds[:, next_row:end_row, :] = tracks_arr
+        ds.attrs['next_writable'] = end_row
     
     return
     
