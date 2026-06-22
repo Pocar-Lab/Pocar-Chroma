@@ -49,6 +49,8 @@ def make_HDF5_file(
 
     tallies_dtype = np.dtype([(name, 'i') for name in tallies_columns])
 
+    tallies_columns.append('track_number')
+
     # actually make the file
     with h5py.File(file_path, 'w') as f:
 
