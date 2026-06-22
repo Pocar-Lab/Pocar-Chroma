@@ -47,9 +47,11 @@ def make_HDF5_file(
     
     # make the tallies column names into a structured dtype with columns as bools
 
+    tallies_columns.append('track_number')
+    
     tallies_dtype = np.dtype([(name, 'i') for name in tallies_columns])
 
-    tallies_columns.append('track_number')
+
 
     # actually make the file
     with h5py.File(file_path, 'w') as f:
