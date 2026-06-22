@@ -236,19 +236,17 @@ def tallies_write(
         end_row = next_row + len(next(iter(tallies_dict.values())))
         tprint(f'Next Row: {next_row}')
         tprint(f'End Row: {end_row}')
-        ds[next_row:end_row] = tallies_dict
-        # Commenting out this block for Debug purposes
-        '''
+        
         for key, value in tallies_dict.items():
 
             tprint(f'Column: {key}')
             tprint(f'Data: {value}')
 
-            ds[next_row: end_row][key] = value
+            ds[key, next_row:end_row]= value
             tprint(ds)
         
         ds.attrs['next_writable'] = end_row
-        '''
+        
     return
 
     
