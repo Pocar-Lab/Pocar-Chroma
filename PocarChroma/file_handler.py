@@ -47,8 +47,8 @@ def make_HDF5_file(
     
     # make the tallies column names into a structured dtype with columns as bools
 
-    tallies_columns.append('track_number')
-    
+
+
     tallies_dtype = np.dtype([(name, 'i') for name in tallies_columns])
 
 
@@ -111,8 +111,6 @@ def tallies_write(
     return
 
 
-
-
 def tracks_write(
     file_path,
     tracks_arr
@@ -131,7 +129,113 @@ def tracks_write(
     return
 
 
+def tracks_read(file_path):
+    '''
+    Gets tracks from a given hdf5 file and returns them as a numpy array
+    '''
 
+    with h5py.File(file_path, 'r') as f:
+
+        arr = f['tracks'][:]
+
+        return arr
+
+
+
+def tallies_read_to_df(file_path):
+    '''
+    Returns tallies as a pandas dataframe
+    '''
+    with h5py.File(file_path, 'r') as f:
+
+        df = pd.DataFrame(f['tallies'][:])
+
+        return df
+
+
+def select_tracks(
+    file_path,
+    selection_criteria,
+    invert_selection = False,
+    return_type = 'indices'
+    ):
+    '''
+    Replaces analysis_manager.preprocess_tracks
+    Returns the indices of tracks that have a nonzero number for an interaction (i.e. have interacted in that way)
+    :param selection_criteria: should be a string of the interaction of interest, or a function that takes a tallies object as an input and returns a 1D boolean array
+    :type selection_criteria: str or function
+    :param invert_selection: If true, takes the indicies which do not meet the selection criteria
+    :type invert_selection: bool 
+    :param return_type: 'indicies': return indices, 'tracks': return tracks, 'both': return both indicies and tracks (in that order)
+    '''
+
+    with h5py.File(file_path, 'r') as f:
+
+        tracks = f['tracks']
+        n_tracks = tracks.shape[1]
+
+        # This assumes that the tracks are the first n rows in tallies
+
+        tallies = f['tallies'][:n_tracks]
+
+        # if selection criteria is callable, run it as a function to get a selection mask (1D array where)
+        if callable(selection_criteria):
+            sel_arr = selection_criteria(tallies)
+
+            #if the returned array is not the same length as the number of tracks, throw an error
+            if len(sel_arr) != n_tracks:
+                raise ValueError("The array provided by selection_criteria does not correspond to the number of tracks")
+
+        # if selection criteria is a string, select from those items in the appropriate column
+        elif isinstance(selection_criteria, str):
+            sel_arr = tallies[selection_criteria][:] > 0
+
+        # If neither is true, throw a ValueError
+        else:
+            raise ValueError('selection_criteria must be a function or a string')
+
+        # if specified, invert the selection
+        if invert_selection:
+            sel_arr = np.logical_not(sel_arr)
+
+        # get the indices of tracks
+        inds = np.where(sel_arr)
+
+        if return_type == 'indices':
+            return inds
+        elif return_type == 'tracks':
+            return np.take(tracks, inds, axis=1)
+        elif return_type == 'both':
+            return inds, np.take(tracks, inds, axis=1)
+        else:
+            raise ValueError('return_type must be "indices", "tracks" or "both"')
+
+
+        
+
+'''
+====== BEGIN TESTING CODE ======
+
+
+
+test_file_path = '/home/sam/Documents/pocar-chroma/test1.hdf5'
+
+all_tracks = tracks_read(test_file_path)
+
+def test_mask(tallies):
+    sel_arr = tallies['RAYLEIGH_SCATTER'][:] > 0
+
+    return sel_arr
+
+
+inds, selected_tracks = select_tracks(test_file_path, test_mask, invert_selection=False, return_type='both')
+
+print(selected_tracks)
+print(inds)
+
+
+'''
+        
 
 
 
