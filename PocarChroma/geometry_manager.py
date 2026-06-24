@@ -30,7 +30,7 @@ class geometry_manager:
         geometry_df (pd.DataFrame): DataFrame containing the geometry component data.
         solids (dict): Dictionary of solid objects.
     """
-
+    # TODO combine geometry_data_path and geo_data
     def __init__(self, 
     geometry_data_path,
     material_data_path,
