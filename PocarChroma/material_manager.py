@@ -17,7 +17,7 @@ class material_manager:
         material_props (dict): Dictionary of material properties.
         global_material (Material): The global material used in the experiment.
     """
-	def __init__(self, experiment_name):
+	def __init__(self, material_data_path):
 		"""
         Initializes the material_manager with the given experiment name and run ID.
         
@@ -25,7 +25,7 @@ class material_manager:
             experiment_name (str): String used to identify each experiment.
         """
 
-		self.material_data_path = '/workspace/data_files/data/' + experiment_name + '/bulk_materials_' + experiment_name + '.csv'
+		self.material_data_path = material_data_path
 	
 		self.build_materials()
 		self.global_material = self.materials['liquid xenon']

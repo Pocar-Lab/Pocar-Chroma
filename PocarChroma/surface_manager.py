@@ -23,10 +23,10 @@ class surface_manager:
     :type experiment_name: str
     """
 
-    def __init__(self, material_manager, experiment_name):
+    def __init__(self, material_manager, surface_data_path):
         self.surfaces = {}
         self.surface_props = {}
-        self.surface_data_path = f"/workspace/data_files/data/{experiment_name}/surface_props_{experiment_name}.csv"
+        self.surface_data_path = surface_data_path
 
         #the sipm reflectivity was determined by another lab experimentally. The lab reported an upperbound and a lower bound for the reflectivites.
         #the FBK.csv file was created by averaging the upper and lower bounds

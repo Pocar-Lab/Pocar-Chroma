@@ -31,7 +31,13 @@ class geometry_manager:
         solids (dict): Dictionary of solid objects.
     """
 
-    def __init__(self, experiment_name, exclude=None, surf_manager = None, geo_data = None):
+    def __init__(self, 
+    geometry_data_path,
+    material_data_path,
+    surface_data_path, 
+    exclude=None, 
+    surf_manager = None, 
+    geo_data = None):
         """
         Initializes the geometry_manager with the given experiment name and run ID.
 
@@ -39,15 +45,14 @@ class geometry_manager:
             experiment_name (str): String used to identify each experiment.
         """
         self.exclude = [] if exclude is None else exclude
-        self.experiment_name = experiment_name
-        self.mat_manager = material_manager(self.experiment_name) if surf_manager is None else surf_manager.mat_manager
-        self.surf_manager = surface_manager(self.mat_manager, self.experiment_name) if surf_manager is None else surf_manager
+        self.geometry_data_path = geometry_data_path
+        self.mat_manager = material_manager(material_data_path) if surf_manager is None else surf_manager.mat_manager
+        self.surf_manager = surface_manager(self.mat_manager, surface_data_path) if surf_manager is None else surf_manager
         self.global_geometry = Detector(self.mat_manager.global_material)
         if geo_data == None:
-            self.geometry_data_path = f"/workspace/data_files/data/{experiment_name}/geometry_components_{experiment_name}.csv"
-        else: 
-            self.geometry_data_path = geo_data
-
+            self.geometry_df = pd.read_csv(self.geometry_data_path)
+        else:
+            self.geometry_df = geo_data
         self.build_geometry()
 
         self.global_geometry.flatten()
@@ -59,8 +64,8 @@ class geometry_manager:
         Adds the solids to the global geometry based on their type.
         """
 
-        # read in the csv file into dataframe
-        self.geometry_df = pd.read_csv(self.geometry_data_path)
+
+        
 
         # iterate through all geometries and create Solid object, store into dictionary of solids
         self.solids = {}
