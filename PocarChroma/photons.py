@@ -91,7 +91,7 @@ def propagate(
             for curr_int in interactions.keys()
         }
     
-    particle_histories['track_number'] = np.zeros(n_photons, dtype=int)
+    
 
     
     # start a simulation
