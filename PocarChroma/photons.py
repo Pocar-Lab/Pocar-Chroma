@@ -124,7 +124,7 @@ def propagate(
         # This is the update_tallies() function from run_manager
         particle_histories.update(photons)
 
-        
+
 
         # This is reset non-terminal flags from run_manager
         new_flags = photons.flags & 2147479567
@@ -141,7 +141,7 @@ def propagate(
 ============= START PARTICLE HISTORIES CODE ==============
 '''
 
-class hist_tallies:
+class hist_tallies():
 
     def init(self,
         interactions,
@@ -165,7 +165,7 @@ class hist_tallies:
 
         return self.particle_histories
 
-class hist_step_by_step:
+class hist_step_by_step():
 
     def init(self,
         num_steps,
