@@ -99,17 +99,5 @@ def plot_tracks(
 
 
 
-figure = plt.figure()
-axes = figure.add_subplot(111, projection='3d')
 
-tracks = fh.tracks_read('/home/sam/Documents/pocar-chroma/test1.hdf5')
-
-
-
-df = pd.read_csv('/home/sam/Documents/pocar-chroma/data_files/geometry_components_s40r25z20.csv')
-
-axes = plot_tracks(tracks, axes, color='purple')
-axes = plot_geometry(df, axes)
-
-plt.show()
 

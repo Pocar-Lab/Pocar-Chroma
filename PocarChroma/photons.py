@@ -59,6 +59,8 @@ def propagate(
     # The following parameters are highly GPU dependant, change at your own risk
     n_threads = 64,
     max_blocks = 1024,
+
+    track_reflections = True,
     
     ):
 
@@ -126,6 +128,14 @@ def propagate(
         for key, value in interactions.items():
             curr_tally = (photons.flags & (0x1 << value)).astype(bool).astype(int)
             particle_histories[key] += curr_tally
+
+        # ==== START TEST BLOCK ====
+
+        if track_reflections:
+            print(photons.last_hit_triangles)
+
+
+        # ==== END TEST BLOCK ====
 
         # This is reset non-terminal flags from run_manager
         new_flags = photons.flags & 2147479567
