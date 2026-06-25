@@ -51,7 +51,7 @@ batching is either to be handled by an auxilliary function in this file or somet
 def propagate(
     photons,    # This should be a chroma Photons object. NOT the photon generator
     geometry,   # This should be a chroma geometry object
-    interactions,
+    particle_histories,
     seed = 5555,
     track_return_ct = 0,
     num_steps = 15,
@@ -60,7 +60,7 @@ def propagate(
     n_threads = 64,
     max_blocks = 1024,
 
-    track_reflections = True,
+     
     
     ):
 
@@ -86,12 +86,9 @@ def propagate(
 
 
 
-    particle_histories = {
-            curr_int: np.zeros(n_photons, dtype=int)
-            for curr_int in interactions.keys()
-        }
+
     
-    
+
 
     
     # start a simulation
@@ -125,9 +122,7 @@ def propagate(
         photon_tracks[i + 1, :, :] = photons.pos[:track_return_ct]
 
         # This is the update_tallies() function from run_manager
-        for key, value in interactions.items():
-            curr_tally = (photons.flags & (0x1 << value)).astype(bool).astype(int)
-            particle_histories[key] += curr_tally
+        particle_histories = hist_tallies(photons, particle_histories)
 
         # ==== START TEST BLOCK ====
 
@@ -148,11 +143,72 @@ def propagate(
 
 '''
 ================== END PROPAGATION CODE ==================
+
+============= START PARTICLE HISTORIES CODE ==============
 '''
 
+class hist_tallies:
+
+    def init(self,
+        interactions,
+        n_photons
+    ):
+
+        self.interactions = interactions
+
+        self.particle_histories = {
+            curr_int: np.zeros(n_photons, dtype=int)
+            for curr_int in interactions.keys()
+        }
+    
+    def update(self, photons):
+        for key, value in self.interactions.items():
+            curr_tally = (photons.flags & (0x1 << value)).astype(bool).astype(int)
+            self.particle_histories[key] += curr_tally
+        
+
+    def get_histories(self):
+
+        return self.particle_histories
+
+class hist_step_by_step:
+
+    def init(self,
+        num_steps,
+        n_photons
+    ):
+        for i in range(num_steps):
+            self.particle_histories = {
+                f'step_{i + 1}_flags': np.zeros(n_photons, dtype= np.uint16),
+                f'step_{i + 1}_surface': np.zeros(n_photons, dtype= np.int16)}
+        pass
+
+        self.curr_step = 1
+
+    def update(self,
+    photons
+    ):
+        mask = photons.flags & 0b1 == 0
+        print(mask)
+
+        # Writes a truncated version of the photon flags to step_n_flags
+        self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(mask, 0, photons.flags & 0b11111111111)
+        self.particle_histories[f'step_{self.curr_step}_surface'] = np.where(mask, 0, photons.last_hit_triangles)
+
+        self.curr_step += 1
+        pass
+
+    def get_histories(self):
+
+        return self.particle_histories
+
+
+
 
 
 '''
+============== END PARTICLE HISTORIES CODE ===============
+
 ============== START PHOTON GENERATION CODE ==============
 '''
 
