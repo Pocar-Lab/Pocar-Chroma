@@ -143,7 +143,7 @@ def propagate(
 
 class hist_tallies():
 
-    def init(self,
+    def __init__(self,
         interactions,
         n_photons
     ):
@@ -167,7 +167,7 @@ class hist_tallies():
 
 class hist_step_by_step():
 
-    def init(self,
+    def __init__(self,
         num_steps,
         n_photons
     ):
