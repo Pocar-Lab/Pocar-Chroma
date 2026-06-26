@@ -42,14 +42,14 @@ def make_HDF5_file(
 
 
     # Convert tallies_columns into list if supplied as dict
-    if isinstance(tallies_columns, dict):
-        tallies_columns = list(tallies_columns.keys())
+    if isinstance(hist_columns, dict):
+        hist_columns = list(hist_columns.keys())
     
     # make the tallies column names into a structured dtype with columns as bools
 
 
 
-    tallies_dtype = np.dtype([(name, 'i') for name in tallies_columns])
+    tallies_dtype = np.dtype([(name, 'i') for name in hist_columns])
 
 
 
@@ -58,7 +58,7 @@ def make_HDF5_file(
 
         # make the two datasets
         hist_ds = f.create_dataset(name='particle_history',
-            shape=(tallies_rows,), 
+            shape=(hist_rows,), 
             dtype=tallies_dtype
             )
         
