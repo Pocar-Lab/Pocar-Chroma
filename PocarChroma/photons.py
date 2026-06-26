@@ -171,7 +171,7 @@ class hist_step_by_step():
         num_steps,
         n_photons
     ):
-        print('using phist2')
+
         for i in range(num_steps + 1):
             self.particle_histories = {
                 f'step_{i + 1}_flags': np.zeros(n_photons, dtype= np.uint16),
@@ -207,7 +207,7 @@ class hist_step_by_step():
 
         '''
         mask = photons.flags & 0x1 == 1
-        print(sum(mask))
+
 
         # If a photon is absorbed, what should the behavior be?
         self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(mask, 0, photons.flags)
