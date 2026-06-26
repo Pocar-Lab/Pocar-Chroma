@@ -171,7 +171,8 @@ class hist_step_by_step():
         num_steps,
         n_photons
     ):
-        for i in range(num_steps):
+        print('using phist2')
+        for i in range(num_steps + 1):
             self.particle_histories = {
                 f'step_{i + 1}_flags': np.zeros(n_photons, dtype= np.uint16),
                 f'step_{i + 1}_surface': np.zeros(n_photons, dtype= np.int16)}
@@ -182,19 +183,55 @@ class hist_step_by_step():
     def update(self,
     photons
     ):
-        mask = photons.flags & 0b1 == 0
-        print(mask)
+        '''
+        Takes an event.photons object  
+        '''
 
-        # Writes a truncated version of the photon flags to step_n_flags
-        self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(mask, 0, photons.flags & (1 << 11) - 1)
-        self.particle_histories[f'step_{self.curr_step}_surface'] = np.where(mask, 0, photons.last_hit_triangles)
+        '''
+        Bit Codes:
 
-        self.curr_step += 1
-        pass
+        NO_HIT           = 0x1 << 0
+        BULK_ABSORB      = 0x1 << 1
+        SURFACE_DETECT   = 0x1 << 2
+        SURFACE_ABSORB   = 0x1 << 3
+        RAYLEIGH_SCATTER = 0x1 << 4
+        REFLECT_DIFFUSE  = 0x1 << 5
+        REFLECT_SPECULAR = 0x1 << 6
+        SURFACE_REEMIT   = 0x1 << 7
+        SURFACE_TRANSMIT = 0x1 << 8
+        BULK_REEMIT      = 0x1 << 9
+        CHERENKOV        = 0x1 << 10
+        SCINTILLATION    = 0x1 << 11
+        PREV_ABSORB      = 0x1 << 12
+        NAN_ABORT        = 0x1 << 31
 
-    def get_histories(self):
+        '''
+        mask = photons.flags & 0x1 == 1
+        print(sum(mask))
 
-        return self.particle_histories
+        # If a photon is absorbed, what should the behavior be?
+        self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(mask, 0, photons.flags)
+        self.particle_histories[f'step_{self.curr_step}_surface'] = np.where(mask, -1, photons.last_hit_triangles)
+
+        # Define bit twelve to indicate a particle that has been absorbed and is therefore "dead"
+
+        # make a new mask if to check if a particle has been absorbed or previously absorbed
+        absorbed_bitmask = (0x1 << 1) + (0x1 << 3) + (0x1 << 12)
+
+        if self.curr_step != 1:
+            absorbed_arr_mask = self.particle_histories[f'step_{self.curr_step - 1}_flags'] & absorbed_bitmask != 0
+
+            self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(
+                absorbed_arr_mask,
+                (0x1 << 12),
+                self.particle_histories[f'step_{self.curr_step}_flags']
+                )
+
+            self.particle_histories[f'step_{self.curr_step}_surface'] = np.where(
+                absorbed_arr_mask, 
+                -1, 
+                self.particle_histories[f'step_{self.curr_step}_surface']
+                )
 
 
 
