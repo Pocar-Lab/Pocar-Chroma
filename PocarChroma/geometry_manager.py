@@ -30,14 +30,14 @@ class geometry_manager:
         geometry_df (pd.DataFrame): DataFrame containing the geometry component data.
         solids (dict): Dictionary of solid objects.
     """
-    # TODO combine geometry_data_path and geo_data
+    
     def __init__(self, 
     geometry_data_path,
     material_data_path,
     surface_data_path, 
     exclude=None, 
     surf_manager = None, 
-    geo_data = None):
+    ):
         """
         Initializes the geometry_manager with the given experiment name and run ID.
 
@@ -49,10 +49,10 @@ class geometry_manager:
         self.mat_manager = material_manager(material_data_path) if surf_manager is None else surf_manager.mat_manager
         self.surf_manager = surface_manager(self.mat_manager, surface_data_path) if surf_manager is None else surf_manager
         self.global_geometry = Detector(self.mat_manager.global_material)
-        if geo_data == None:
+        if isinstance(geometry_data_path, str):
             self.geometry_df = pd.read_csv(self.geometry_data_path)
         else:
-            self.geometry_df = geo_data
+            self.geometry_df = geometry_data_path
         self.build_geometry()
 
         self.global_geometry.flatten()
