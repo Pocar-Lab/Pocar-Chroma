@@ -91,7 +91,7 @@ def particle_histories_write(
 
 
     with h5py.File(file_path, 'r+') as f:
-        ds = f['tallies']
+        ds = f['particle_history']
         next_row = ds.attrs['next_writable']
 
 
@@ -148,7 +148,7 @@ def tallies_read_to_df(file_path):
     '''
     with h5py.File(file_path, 'r') as f:
 
-        df = pd.DataFrame(f['tallies'][:])
+        df = pd.DataFrame(f['particle_history'][:])
 
         return df
 
@@ -176,7 +176,7 @@ def select_tracks(
 
         # This assumes that the tracks are the first n rows in tallies
 
-        tallies = f['tallies'][:n_tracks]
+        tallies = f['particle_history'][:n_tracks]
 
         # if selection criteria is callable, run it as a function to get a selection mask (1D array where)
         if callable(selection_criteria):
