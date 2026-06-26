@@ -13,9 +13,9 @@ def make_HDF5_file(
 
     tracks_shape,    # The shape of the tracks dataset, in standard numpy notation.
 
-    tallies_rows:int,
+    hist_rows:int,
     # and the tallies columns
-    tallies_columns
+    hist_columns
     ):
     '''
     Makes an HDF5 file with the desired header information
@@ -57,14 +57,14 @@ def make_HDF5_file(
     with h5py.File(file_path, 'w') as f:
 
         # make the two datasets
-        tallies_ds = f.create_dataset(name='tallies',
+        hist_ds = f.create_dataset(name='particle_history',
             shape=(tallies_rows,), 
             dtype=tallies_dtype
             )
         
         # set an attribute that keeps track of next writable row 
 
-        tallies_ds.attrs['next_writable'] = 0
+        hist_ds.attrs['next_writable'] = 0
         
         tracks_ds = f.create_dataset('tracks', tracks_shape, dtype='f')
 
@@ -77,7 +77,7 @@ def make_HDF5_file(
 
     return
 
-def tallies_write(
+def particle_histories_write(
     file_path:str,
     tallies_dict:dict,
 ):

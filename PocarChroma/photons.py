@@ -232,6 +232,10 @@ class hist_step_by_step():
                 -1, 
                 self.particle_histories[f'step_{self.curr_step}_surface']
                 )
+                
+    def get_histories(self):
+
+        return self.particle_histories
 
 
 
