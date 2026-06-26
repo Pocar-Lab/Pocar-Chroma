@@ -186,7 +186,7 @@ class hist_step_by_step():
         print(mask)
 
         # Writes a truncated version of the photon flags to step_n_flags
-        self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(mask, 0, photons.flags & 0b11111111111)
+        self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(mask, 0, photons.flags & (1 << 11) - 1)
         self.particle_histories[f'step_{self.curr_step}_surface'] = np.where(mask, 0, photons.last_hit_triangles)
 
         self.curr_step += 1
