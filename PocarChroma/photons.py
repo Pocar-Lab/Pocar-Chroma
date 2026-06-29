@@ -210,8 +210,8 @@ class hist_step_by_step():
 
 
         # If a photon is absorbed, what should the behavior be?
-        self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(mask, 0, photons.flags)
-        self.particle_histories[f'step_{self.curr_step}_surface'] = np.where(mask, -1, photons.last_hit_triangles)
+        self.particle_histories[f'step_{self.curr_step}_flags'] = np.where(mask, 0, photons.flags).astype(np.int16)
+        self.particle_histories[f'step_{self.curr_step}_surface'] = np.where(mask, -1, photons.last_hit_triangles).astype(np.int16)
 
         # Define bit twelve to indicate a particle that has been absorbed and is therefore "dead"
 
@@ -225,14 +225,17 @@ class hist_step_by_step():
                 absorbed_arr_mask,
                 (0x1 << 12),
                 self.particle_histories[f'step_{self.curr_step}_flags']
-                )
+                ).astype(np.int16)
 
             self.particle_histories[f'step_{self.curr_step}_surface'] = np.where(
                 absorbed_arr_mask, 
                 -1, 
                 self.particle_histories[f'step_{self.curr_step}_surface']
-                )
-                
+                ).astype(np.int16)
+        
+        self.curr_step += 1
+            
+
     def get_histories(self):
 
         return self.particle_histories
