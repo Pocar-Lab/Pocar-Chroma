@@ -174,7 +174,7 @@ class hist_step_by_step():
 
         for i in range(num_steps + 1):
             self.particle_histories = {
-                f'step_{i + 1}_flags': np.zeros(n_photons, dtype= np.uint16),
+                f'step_{i + 1}_flags': np.zeros(n_photons, dtype= np.int16),
                 f'step_{i + 1}_surface': np.zeros(n_photons, dtype= np.int16)}
         pass
 
