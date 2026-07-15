@@ -184,7 +184,7 @@ class hist_step_by_step():
     photons
     ):
         '''
-        Takes an event.photons object  
+        Takes an event.photons object and updates step by step data for what interactions happened. 
         '''
 
         '''
