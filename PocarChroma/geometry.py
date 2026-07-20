@@ -29,11 +29,14 @@ from .surface_manager import surface_manager
 
 
 def build_geometry(
-    geo_path:str,   # Path to the geometry csv file
-    mat_path:str,   # Path to the materials csv file
-    surf_path:str:  # Path to the surfaces csv file
+    geo_df:pd.DataFrame,   # Path to the geometry csv file
+    mat_df:pd.DataFrame,   # Path to the materials csv file
+    surf_df:pd.DataFrame  # Path to the surfaces csv file
 
 ):
+
+    for index, row in self.geometry_df.iterrows():
+        
     pass
 
 def build_geometry_from_df(
