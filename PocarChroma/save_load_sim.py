@@ -211,6 +211,64 @@ def select_tracks(
             raise ValueError('return_type must be "indices", "tracks" or "both"')
 
 
+def create_empty_csv(
+    columns:list,
+    csv_path:str,
+    overwrite:bool = False
+):
+    # If the overwrite flag has been set, we don't care about the preexisting file, so we delete it regardless of whether or not it exists
+    # The try-except is to handle the error that occurs if the file does not exist.
+    if overwrite:
+        try:
+            os.remove(csv_path)
+        except FileNotFoundError:
+            pass
+        
+    elif os.path.exists(csv_path):
+        print(f'The file {csv_path} already exists')
+        return # If the file does exist, it doesn't need to be created, so return
+
+    header_df = pd.DataFrame(
+        data=None,
+        columns=columns,
+    )
+    header_df.to_csv(csv_path, index=False)
+
+    print(f'Created CSV file at {csv_path}')
+
+    return
+
+
+def csv_append_rows(
+    data:dict | pd.DataFrame,
+    csv_path:str
+):
+    if isinstance(data, dict):
+        data = pd.DataFrame(data)
+
+    columns = data.columns.to_list()
+
+    if os.path.exists(csv_path):
+        csv = pd.read_csv(csv_path)
+    else:
+        # If the file is not found, create it
+        print(f'CSV file {csv_path} not found')
+        create_empty_csv(
+            csv_path=csv_path, 
+            columns=columns)
+        csv = pd.read_csv(csv_path)
+    
+    if set(columns) != set(csv.columns.tolist()):
+        raise KeyError ('columns in data do not match columns in csv file')
+    
+    data.to_csv(csv_path, 
+        mode='a', 
+        columns=csv.columns.tolist(), 
+        index=False, 
+        header=False
+        )
+    
+    return
         
 
 '''
