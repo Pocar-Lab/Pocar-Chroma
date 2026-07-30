@@ -12,7 +12,6 @@ from mpl_toolkits import mplot3d
 from array import array
 import time
 import os
-import file_handler as fh
 
 
 def plot_geometry(
@@ -20,7 +19,7 @@ def plot_geometry(
     axes,
 ):
     '''
-    plots geometry. 
+    plots geometry.
     :param geometry_df: dataframe of geometry (from geometry CSV)
     :type geometry_df: Dataframe
     :param axes: an mpl 3d axes object (optional)
@@ -61,7 +60,7 @@ def plot_geometry(
         poly3d.set_facecolor(curr_color)
         axes.add_collection3d(poly3d)
 
-    
+
     scale = m.points.flatten()
 
     axes.auto_scale_xyz(scale, scale, scale)

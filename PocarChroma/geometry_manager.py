@@ -30,14 +30,14 @@ class geometry_manager:
         geometry_df (pd.DataFrame): DataFrame containing the geometry component data.
         solids (dict): Dictionary of solid objects.
     """
-    
-    def __init__(self, 
-    geometry_data_path,
-    material_data_path,
-    surface_data_path, 
-    exclude=None, 
-    surf_manager = None, 
-    ):
+
+    def __init__(self,
+                 geometry_data_path,
+                 material_data_path,
+                 surface_data_path,
+                 exclude=None,
+                 surf_manager = None,
+                 ):
         """
         Initializes the geometry_manager with the given experiment name and run ID.
 
@@ -63,9 +63,6 @@ class geometry_manager:
         Builds the geometry by reading the CSV file and creating solid objects.
         Adds the solids to the global geometry based on their type.
         """
-
-
-        
 
         # iterate through all geometries and create Solid object, store into dictionary of solids
         self.solids = {}
