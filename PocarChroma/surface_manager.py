@@ -30,7 +30,7 @@ class surface_manager:
 
         #the sipm reflectivity was determined by another lab experimentally. The lab reported an upperbound and a lower bound for the reflectivites.
         #the FBK.csv file was created by averaging the upper and lower bounds
-        self.SiPMAOIref_path = "/workspace/data_files/FBK.csv"
+        self.SiPMAOIref_path = "/workspace/FBK.csv"
         # self.SiPMAOIref_path = '/workspace/data_files/FBK reflectivity_upper_bound.csv'
         # self.SiPMAOIref_path ='/workspace/data_files/FBK reflectivity_lower_bound.csv'
 
@@ -272,6 +272,6 @@ class surface_manager:
         self.eta2 = eta2
         self.k2 = k2
         return (self.eta2, self.k2)
-    
+
     def overwrite_property(self, surface, property, new_value):
         self.surfaces[surface].set(property, new_value)
