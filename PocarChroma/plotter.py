@@ -69,34 +69,34 @@ def plot_geometry(
     axes.set_zlabel("z position (mm)")
     return axes
 
-
-
-
 def plot_tracks(
-    tracks,
+    photon_steps,
     axes,
-    num_tracks_to_plot = 1000,
+    num_tracks = 1000,
     color = 'black',
     linewidth = 1
 ):
-    # in the original code, tracks were selected at random to plot if too many tracks were provided, but honestly I don't know why
+    # Format photon steps into tracks which can be plotted
+    tracks = np.zeros((len(photon_steps), num_tracks, 3))
+    for step in range(len(photon_steps)):
+        tracks[step, :, :] = photon_steps[step].pos[:num_tracks]
 
-    if not num_tracks_to_plot > tracks.shape[1]:
-        tracks = tracks[:, :num_tracks_to_plot, :]
-    else:
-        pass
-
-    for i in range(tracks.shape[1]):
+    # Plot all the tracks
+    for i in range(num_tracks):
         axes.plot(
-            tracks[:, i, 0], tracks[:, i,  1], tracks[:, i, 2], color=color, linewidth=linewidth
+            tracks[:, i, 0], tracks[:, i,  1], tracks[:, i, 2],
+            # tracks.pos[i][0], tracks.pos[i][1], tracks.pos[i][2],
+            color=color, linewidth=linewidth
         )
 
     return axes
 
 
-
-
-
-
-
-
+def plot_chroma(geometry=None, tracks=None, tracks_num=1000, tracks_color='black', tracks_linewidth=1):
+    fig = plt.figure()
+    axes = fig.add_subplot(111, projection='3d')
+    if geometry is not None:
+        plot_geometry(geometry, axes)
+    if tracks is not None:
+        plot_tracks(tracks, axes, tracks_num, tracks_color, tracks_linewidth)
+    plt.show()
