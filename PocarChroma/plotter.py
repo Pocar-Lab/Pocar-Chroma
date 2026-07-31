@@ -95,6 +95,8 @@ def plot_tracks(
 def plot_chroma(geometry=None, tracks=None, tracks_num=1000, tracks_color='black', tracks_linewidth=1):
     fig = plt.figure()
     axes = fig.add_subplot(111, projection='3d')
+    plt.tight_layout()
+    axes.view_init(elev=90, azim=-90)
     if geometry is not None:
         plot_geometry(geometry, axes)
     if tracks is not None:
