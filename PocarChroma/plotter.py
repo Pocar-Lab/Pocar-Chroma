@@ -12,6 +12,7 @@ from mpl_toolkits import mplot3d
 from array import array
 import time
 import os
+import itertools
 
 
 def plot_geometry(
@@ -25,9 +26,6 @@ def plot_geometry(
     :param axes: an mpl 3d axes object (optional)
     :type axes: Axes
     '''
-
-
-
 
     # Get columns from geometry dataframe
     part_name = geometry_df['name']
@@ -55,7 +53,7 @@ def plot_geometry(
         ])
 
         poly3d = Poly3DCollection(m.vectors)
-        poly3d.set_alpha(0.2)
+        poly3d.set_alpha(0.1)
         poly3d.set_edgecolor(None)
         poly3d.set_facecolor(curr_color)
         axes.add_collection3d(poly3d)
@@ -72,22 +70,26 @@ def plot_geometry(
 def plot_tracks(
     photon_steps,
     axes,
+    photon_filter=None,
     num_tracks = 1000,
     color = 'black',
     linewidth = 1
 ):
     # Format photon steps into tracks which can be plotted
-    tracks = np.zeros((len(photon_steps), num_tracks, 3))
+    tracks = np.zeros((len(photon_steps), len(photon_steps[0].pos), 3))
     for step in range(len(photon_steps)):
-        tracks[step, :, :] = photon_steps[step].pos[:num_tracks]
+        tracks[step, :, :] = photon_steps[step].pos
 
-    # Plot all the tracks
-    for i in range(num_tracks):
-        axes.plot(
-            tracks[:, i, 0], tracks[:, i,  1], tracks[:, i, 2],
-            # tracks.pos[i][0], tracks.pos[i][1], tracks.pos[i][2],
-            color=color, linewidth=linewidth
-        )
+    if photon_filter is None:
+        photon_filter = set(range(num_tracks))
+
+    # Plot all the tracks which pass the filter, stopping after num_tracks
+    for i in itertools.islice(photon_filter, num_tracks):
+        if i in photon_filter: # Skip photons not in filter
+            axes.plot(
+                tracks[:, i, 0], tracks[:, i,  1], tracks[:, i, 2],
+                color=color, linewidth=linewidth
+            )
 
     return axes
 
