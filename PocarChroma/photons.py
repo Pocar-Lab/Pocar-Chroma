@@ -264,15 +264,33 @@ class Interaction(IntEnum):
     PREV_ABSORB      = 0x1 << 12
     NAN_ABORT        = 0x1 << 31
 
-class Counter():
-    def __init__(self, interaction):
-        self.interaction = interaction
-        self.if_interaction = np.vectorize(lambda x: x & interaction > 0)
-        self.counts = 0
+def triangles_from_name(geometry_manager, part_name):
+    # Find the index of the part_name in solids keys
+    part_idx = list(geometry_manager.solids.keys()).index(part_name)
+    # Get all triangle indices where solid_id equals part_idx
+    triangles = [i for i, val in enumerate(geometry_manager.global_geometry.solid_id)
+                   if val == part_idx]
+    return np.array(triangles)
+
+class Filter():
+    def __init__(self, geometry_manager, interactions, parts=[]):
+        """Create photon filter for interaction flags, and collisions with parts if given.
+        Run update after each batch of photons is propagated,
+        at the end res is a set that contains all the photon indices which passed the filter."""
+        self.parts = parts
+        if parts: # if part names are given, get a list of triangle indices for all parts
+            list_tri = [triangles_from_name(geometry_manager, part) for part in parts]
+            self.triangles = np.concatenate(list_tri)
+        self.interactions = int(interactions)
+        self.batch_num = 0
+        self.res = set() # Resulting set of indices of photons which pass filter
 
     def update(self, photon_steps):
-        if self.interaction > Interaction.SURFACE_ABSORB:
-            for step in photon_steps:
-                self.counts += np.sum(self.if_interaction(step.flags))
-        else:
-            self.counts += np.sum(self.if_interaction(photon_steps[-1].flags))
+        "Update filter for each photon batch"
+        for step in photon_steps:
+            interacted = (step.flags & self.interactions) != 0
+            if self.parts:
+                collision = np.isin(step.last_hit_triangles, self.triangles)
+                interacted &= collision
+            self.res |= set(np.flatnonzero(interacted) + self.batch_num*len(step.pos))
+        self.batch_num += 1
