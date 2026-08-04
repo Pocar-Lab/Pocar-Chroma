@@ -1,4 +1,3 @@
-from PocarChroma.run_manager import primary_generator
 from chroma.sim import Simulation
 from chroma.event import Photons
 
@@ -245,6 +244,7 @@ def propagate(
     pycuda.tools.clear_context_caches()
 
     return photon_steps
+
 
 ### PARTICLE HISTORIES
 
