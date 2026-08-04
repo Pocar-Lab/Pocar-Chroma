@@ -94,13 +94,20 @@ def plot_tracks(
     return axes
 
 
-def plot_chroma(geometry=None, tracks=None, tracks_num=1000, tracks_color='black', tracks_linewidth=1):
+def plot_chroma(geometry=None, tracks=None, photon_filters=None,
+                tracks_colors='black', tracks_num=1000, tracks_linewidth=1):
     fig = plt.figure()
     axes = fig.add_subplot(111, projection='3d')
     plt.tight_layout()
-    axes.view_init(elev=90, azim=-90)
+    axes.view_init(elev=90, azim=-90) # Default view centered on XY plane
     if geometry is not None:
         plot_geometry(geometry, axes)
-    if tracks is not None:
-        plot_tracks(tracks, axes, tracks_num, tracks_color, tracks_linewidth)
+    if type(photon_filters) is list:
+        if type(tracks_colors) is not list:
+            raise ValueError("Need photon filter and tracks colors to both be lists")
+        for pf, color in zip(photon_filters, tracks_colors):
+            # TODO divide tracks_num by number of filters?
+            plot_tracks(tracks, axes, pf, tracks_num, color, tracks_linewidth)
+    elif tracks is not None:
+        plot_tracks(tracks, axes, photon_filters, tracks_num, tracks_colors, tracks_linewidth)
     plt.show()
