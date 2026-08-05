@@ -24,8 +24,11 @@ class material_manager:
         Args:
             experiment_name (str): String used to identify each experiment.
         """
-
-		self.material_data_path = material_data_path
+		if isinstance(material_data_path, str):
+			# read in the csv file into dataframe
+			self.materials_df = pd.read_csv(material_data_path)
+		else:
+			self.materials_df = material_data_path
 	
 		self.build_materials()
 		self.global_material = self.materials['liquid xenon']
@@ -63,8 +66,7 @@ class material_manager:
 		"""
         Reads material properties from a CSV file and creates Material objects.
         """
-		# read in the csv file into dataframe
-		self.materials_df = pd.read_csv(self.material_data_path)
+
 
 		# iterate through all materials and create Material object, store into dictionary of materials
 		self.materials = {}

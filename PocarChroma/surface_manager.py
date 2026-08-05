@@ -26,7 +26,14 @@ class surface_manager:
     def __init__(self, material_manager, surface_data_path):
         self.surfaces = {}
         self.surface_props = {}
-        self.surface_data_path = surface_data_path
+
+        if isinstance(surface_data_path, str):
+			# read in the csv file into dataframe
+            self.surfaces_df = pd.read_csv(surface_data_path)
+        else:
+            self.surfaces_df = surface_data_path
+        
+
 
         #the sipm reflectivity was determined by another lab experimentally. The lab reported an upperbound and a lower bound for the reflectivites.
         #the FBK.csv file was created by averaging the upper and lower bounds
@@ -45,7 +52,6 @@ class surface_manager:
 
         :return: None
         """
-        self.surfaces_df = pd.read_csv(self.surface_data_path)
 
         for index, row in self.surfaces_df.iterrows():
             curr_name = row["name"]
